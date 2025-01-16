@@ -1,0 +1,23 @@
+[
+    {
+        "applicationdate": "2024-05-01",
+        "name" : "neel",
+        "leavetype": "Sick Leave",
+        "leavedate": "2024-05-03",
+        "returndate" :"2024-05-03",
+        "days": 3,
+        "reason": "flu ins huopi tu njuiei hueiicfue nusiueueui udecieiuec iubiu  ",
+        "status":"Approved"
+      },
+
+    {
+        "applicationdate": "2024-05-01",
+        "name" : "vikas",
+        "leavetype": "Sick Leave",
+        "leavedate": "2024-05-03",
+        "returndate" :"2024-05-03",
+        "days": 3,
+        "reason": "Flu",
+        "status":"Rejected"
+      }
+] 
