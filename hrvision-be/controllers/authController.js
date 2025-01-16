@@ -4,6 +4,122 @@ const { User, Counter } = require("../model/userModel");
 const JWT_SECRET = process.env.SECRETKEY;
 
 // Create a User
+// async function handleUserSingup(req, res) {
+//   try {
+//     console.log("Request body:", req.body);
+
+//     // Extract user details from request body
+//     const {
+//       name,
+//       email,
+//       contact,
+//       address,
+//       position,
+//       password,
+//       repassword,
+//       role,
+//       joining_date,
+//       experience,
+//       bod,
+//       paidLeave,
+//       sickLeave,
+//       projectManagerId,
+//     } = req.body;
+
+//     if (
+//       !name ||
+//       !email ||
+//       !contact ||
+//       !address ||
+//       !position ||
+//       !password ||
+//       !repassword ||
+//       !role ||
+//       !joining_date ||
+//       !experience ||
+//       !bod
+//     ) {
+//       console.log("Missing required fields");
+//       return res
+//         .status(400)
+//         .json({ status: "error", message: "Please Fillup all Required filed" });
+//     }
+
+//     if (password !== repassword) {
+//       console.log("Passwords do not match");
+//       return res
+//         .status(400)
+//         .json({ status: "error", message: "Please enter same repassword" });
+//     }
+
+//     const dup_email = await User.findOne({ email });
+//     if (dup_email) {
+//       console.log("Duplicate email found:", email);
+//       return res.status(400).json({
+//         status: "error",
+//         message: "Please enter different this email is already exist",
+//       });
+//     }
+
+//     console.log("Generating employee ID");
+//     const counter = await Counter.findByIdAndUpdate(
+//       { _id: "employeeId" },
+//       { $inc: { seq: 1 } },
+//       { new: true, upsert: true }
+//     );
+
+//     if (!counter || !counter.seq) {
+//       console.log("Failed to generate employee ID");
+//       return res.status(500).json({ message: "Failed to generate employeeId" });
+//     }
+
+//     function generateUniqueId(length = 18) {
+//       return Array.from({ length }, () =>
+//         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+//           Math.floor(Math.random() * 62)
+//         )
+//       ).join("");
+//     }
+//     const uniqueId = generateUniqueId();
+//     console.log("Unique ID generated:", uniqueId);
+
+//     const total_leaves = Number(sickLeave) + Number(paidLeave);
+//     const user = await User.create({
+//       name,
+//       email,
+//       contact,
+//       address,
+//       position,
+//       password,
+//       repassword,
+//       role,
+//       joining_date,
+//       experience,
+//       paidLeave,
+//       sickLeave,
+//       bod,
+//       employeeId: counter.seq,
+//       totalLeave: total_leaves,
+//       remainingLeave: total_leaves,
+//       remainingSickLeave: sickLeave,
+//       remainingPaidLeave: paidLeave,
+//       projectManagerId,
+//       uniqueId,
+//     });
+
+//     console.log("User created:", user);
+
+//     return res.status(200).json({
+//       status: "ok",
+//       message: "User successfully signed up",
+//       data: user,
+//     });
+//   } catch (error) {
+//     console.error("Error during user signup:", error);
+//     return res.status(500).json({ message: "Internal Server error", error: error.message });
+//   }
+// }
+
 async function handleUserSingup(req, res) {
   try {
     console.log("Request body:", req.body);
@@ -42,14 +158,14 @@ async function handleUserSingup(req, res) {
       console.log("Missing required fields");
       return res
         .status(400)
-        .json({ status: "error", message: "Please Fillup all Required filed" });
+        .json({ status: "error", message: "Please fill up all required fields" });
     }
 
     if (password !== repassword) {
       console.log("Passwords do not match");
       return res
         .status(400)
-        .json({ status: "error", message: "Please enter same repassword" });
+        .json({ status: "error", message: "Passwords do not match" });
     }
 
     const dup_email = await User.findOne({ email });
@@ -57,7 +173,7 @@ async function handleUserSingup(req, res) {
       console.log("Duplicate email found:", email);
       return res.status(400).json({
         status: "error",
-        message: "Please enter different this email is already exist",
+        message: "This email is already registered",
       });
     }
 
@@ -70,7 +186,7 @@ async function handleUserSingup(req, res) {
 
     if (!counter || !counter.seq) {
       console.log("Failed to generate employee ID");
-      return res.status(500).json({ message: "Failed to generate employeeId" });
+      return res.status(500).json({ message: "Failed to generate employee ID" });
     }
 
     function generateUniqueId(length = 18) {
@@ -105,13 +221,29 @@ async function handleUserSingup(req, res) {
       remainingPaidLeave: paidLeave,
       projectManagerId,
       uniqueId,
+      tokenVersion: 0, // Initialize token version to handle token invalidation later
     });
 
     console.log("User created:", user);
 
+    // Generate a JWT token
+    const token = jwt.sign(
+      {
+        user: {
+          id: user._id,
+          role: user.role,
+          uniqueId: user.uniqueId,
+        },
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" } // Set token expiration time
+    );
+
+    // Send the token as part of the response
     return res.status(200).json({
       status: "ok",
       message: "User successfully signed up",
+      token: token, // Include the token in the response
       data: user,
     });
   } catch (error) {
@@ -119,6 +251,7 @@ async function handleUserSingup(req, res) {
     return res.status(500).json({ message: "Internal Server error", error: error.message });
   }
 }
+
 
 // User Login
 async function handleUserLogin(req, res) {
@@ -173,3 +306,4 @@ module.exports = {
   handleUserSingup,
   handleUserLogin,
 };
+// Updated
