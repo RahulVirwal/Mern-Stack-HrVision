@@ -27,6 +27,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 
+// Sample Route (Test if it's working)
+app.get('/', (req, res) => {
+    res.send('✅ Server is running!');
+});
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
